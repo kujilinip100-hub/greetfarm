@@ -4,6 +4,7 @@ import '../widgets/empty_state.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/product_image_helper.dart';
 import 'collection_qr_screen.dart';
+import '../services/session.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
@@ -23,7 +24,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Future<void> loadOrders() async {
-    orders = await ReservationService.getCustomerOrders(1);
+    orders = await ReservationService.getCustomerOrders(Session.userId!);
     setState(() => isLoading = false);
   }
 
