@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
-import 'collection_point_screen.dart';
 import '../widgets/product_image_helper.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
+import 'collection_point_screen.dart';
 
 class ReserveProductScreen extends StatefulWidget {
   final ProductModel product;
@@ -42,13 +44,14 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
 
     const orderId = "ORD001";
 
-    Navigator.push(
+        Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CollectionPointScreen(
           orderId: orderId,
           productId: widget.product.productId,
           productName: widget.product.productName,
+          productImage: widget.product.image,
           quantity: selectedQuantity!,
         ),
       ),
@@ -60,7 +63,7 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
     final product = widget.product;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Reserve Product")),
+      appBar: AppBar(title: Text(LanguageService.t("reserve_product_title"))),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -88,7 +91,7 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(product.productName,
+                        Text(getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
                             style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
                         Text("Rs.${product.price} / kg", style: const TextStyle(color: Colors.white70)),
@@ -110,7 +113,7 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
                 children: [
                   const Icon(Icons.inventory_2_outlined, color: Colors.green),
                   const SizedBox(width: 10),
-                  Text("Available Quantity", style: TextStyle(color: Colors.grey.shade700)),
+                  Text(LanguageService.t("available_qty"), style: TextStyle(color: Colors.grey.shade700)),
                   const Spacer(),
                   Text("${product.quantity} Kg",
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
@@ -120,13 +123,13 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
             const SizedBox(height: 24),
 
             if (quantityOptions.isEmpty)
-              const Text("Not enough stock available", style: TextStyle(color: Colors.red))
+              Text(LanguageService.t("not_enough_stock"), style: const TextStyle(color: Colors.red))
             else
               DropdownButtonFormField<double>(
                 initialValue: selectedQuantity,
-                decoration: const InputDecoration(
-                  labelText: "Select Quantity (Kg)",
-                  prefixIcon: Icon(Icons.scale_outlined),
+                decoration: InputDecoration(
+                  labelText: LanguageService.t("select_qty"),
+                  prefixIcon: const Icon(Icons.scale_outlined),
                 ),
                 items: quantityOptions
                     .map((q) => DropdownMenuItem(value: q, child: Text("${q.toStringAsFixed(1)} Kg")))
@@ -142,7 +145,7 @@ class _ReserveProductScreenState extends State<ReserveProductScreen> {
               child: ElevatedButton.icon(
                 onPressed: (selectedQuantity == null) ? null : reserveProduct,
                 icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text("Reserve Product"),
+                label: Text(LanguageService.t("reserve_product_title")),
               ),
             ),
           ],

@@ -3,7 +3,10 @@ import '../models/product_model.dart';
 import '../services/product_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/product_image_helper.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 import 'product_details_screen.dart';
+import '../services/cart_service.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -49,7 +52,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Fresh Products")),
+      appBar: AppBar(title: Text(LanguageService.t("fresh_products"))),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -63,9 +66,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         _applyFilters();
                       });
                     },
-                    decoration: const InputDecoration(
-                      hintText: "Search Products...",
-                      prefixIcon: Icon(Icons.search),
+                    decoration: InputDecoration(
+                      hintText: LanguageService.t("search_products"),
+                      prefixIcon: const Icon(Icons.search),
                     ),
                   ),
                 ),
@@ -73,14 +76,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: DropdownButtonFormField<int?>(
                     initialValue: selectedMaxDistance,
-                    decoration: const InputDecoration(
-                      labelText: "Filter by Distance",
-                      prefixIcon: Icon(Icons.social_distance_outlined),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.t("filter_distance"),
+                      prefixIcon: const Icon(Icons.social_distance_outlined),
                     ),
                     items: distanceFilterOptions
                         .map((d) => DropdownMenuItem(
                               value: d,
-                              child: Text(d == null ? "All Distances" : "Within $d Km"),
+                              child: Text(d == null ? LanguageService.t("all_distances") : "Within $d Km"),
                             ))
                         .toList(),
                     onChanged: (value) {
@@ -94,9 +97,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 const SizedBox(height: 12),
                 Expanded(
                   child: filteredProducts.isEmpty
-                      ? const EmptyState(
+                      ? EmptyState(
                           icon: Icons.search_off_rounded,
-                          message: "No products found in this range",
+                          message: LanguageService.t("no_products_found"),
                         )
                       : GridView.builder(
                           padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
@@ -186,17 +189,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            product.productName,
+                                            getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            "${product.quantity.toStringAsFixed(1)} Kg available",
+                                            "${product.quantity.toStringAsFixed(1)} ${LanguageService.t("kg_available")}",
                                             style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                                           ),
-                                          const SizedBox(height: 6),
+                                                                                    const SizedBox(height: 6),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
@@ -208,13 +211,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                   color: Color(0xFF2E7D32),
                                                 ),
                                               ),
-                                              Container(
-                                                padding: const EdgeInsets.all(5),
-                                                decoration: const BoxDecoration(
-                                                  color: Color(0xFF2E7D32),
-                                                  shape: BoxShape.circle,
+                                              InkWell(
+                                                onTap: () {
+                                                  CartService.addToCart(product, 0.5);
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(LanguageService.t("added_to_cart")),
+                                                      duration: const Duration(seconds: 1),
+                                                    ),
+                                                  );
+                                                  setState(() {});
+                                                },
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(5),
+                                                  decoration: const BoxDecoration(
+                                                    color: Color(0xFF2E7D32),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(Icons.add_shopping_cart, size: 14, color: Colors.white),
                                                 ),
-                                                child: const Icon(Icons.arrow_forward, size: 12, color: Colors.white),
                                               ),
                                             ],
                                           ),

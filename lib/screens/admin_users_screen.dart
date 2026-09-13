@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/admin_service.dart';
 import '../widgets/empty_state.dart';
+import '../services/language_service.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -27,11 +28,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Users")),
+      appBar: AppBar(title: Text(LanguageService.t("manage_users"))),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : users.isEmpty
-              ? const EmptyState(icon: Icons.people_outline, message: "No users found")
+              ? EmptyState(icon: Icons.people_outline, message: LanguageService.t("no_users_found"))
               : ListView.builder(
                   padding: const EdgeInsets.all(15),
                   itemCount: users.length,
@@ -48,18 +49,18 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                         ),
                         title: Text(u["full_name"] ?? ""),
-                        subtitle: Text("${u["role"]} • ${u["email"] ?? ""}"),
+                        subtitle: Text("${u["role"] == "Farmer" ? LanguageService.t("farmer") : LanguageService.t("customer")} • ${u["email"] ?? ""}"),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline, color: Colors.red),
                           onPressed: () async {
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (_) => AlertDialog(
-                                title: const Text("Remove User"),
-                                content: Text("Remove ${u["full_name"]} permanently?"),
+                                title: Text(LanguageService.t("remove_user_title")),
+                                content: Text(LanguageService.t("remove_confirm_msg").replaceAll("{name}", u["full_name"] ?? "")),
                                 actions: [
-                                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
-                                  TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete", style: TextStyle(color: Colors.red))),
+                                  TextButton(onPressed: () => Navigator.pop(context, false), child: Text(LanguageService.t("cancel"))),
+                                  TextButton(onPressed: () => Navigator.pop(context, true), child: Text(LanguageService.t("delete"), style: const TextStyle(color: Colors.red))),
                                 ],
                               ),
                             );

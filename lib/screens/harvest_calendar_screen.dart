@@ -3,6 +3,8 @@ import '../models/product_model.dart';
 import '../services/product_service.dart';
 import '../widgets/product_image_helper.dart';
 import '../services/session.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 
 class HarvestCalendarScreen extends StatefulWidget {
   const HarvestCalendarScreen({super.key});
@@ -81,7 +83,7 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
               ),
               const SizedBox(height: 16),
               if (dayProducts.isEmpty)
-                const Text("No harvest scheduled on this date.")
+                Text(LanguageService.t("no_harvest_scheduled"))
               else
                 ...dayProducts.map((product) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -104,7 +106,7 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  product.productName,
+                                  getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
                                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                 ),
                                 Text(
@@ -142,7 +144,7 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
     final firstDayWeekday = DateTime(currentMonth.year, currentMonth.month, 1).weekday - 1;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Harvest Calendar")),
+      appBar: AppBar(title: Text(LanguageService.t("harvest_calendar_title"))),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -197,11 +199,11 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _legendDot(Colors.red, "Low Stock (\u22642 Kg)"),
+                      _legendDot(Colors.red, LanguageService.t("low_stock")),
                       const SizedBox(width: 14),
-                      _legendDot(Colors.orange, "Limited (\u22645 Kg)"),
+                      _legendDot(Colors.orange, LanguageService.t("limited_stock")),
                       const SizedBox(width: 14),
-                      _legendDot(Colors.green, "Good Stock"),
+                      _legendDot(Colors.green, LanguageService.t("good_stock")),
                     ],
                   ),
                 ),
@@ -251,7 +253,6 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
                             cellColor = Colors.green.withOpacity(0.12);
                           }
                         }
-
                         return InkWell(
                           onTap: () => _showDayDetails(date, dayProducts),
                           child: Container(
@@ -299,6 +300,7 @@ class _HarvestCalendarScreenState extends State<HarvestCalendarScreen> {
             ),
     );
   }
+
   Widget _legendDot(Color color, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 
 class CollectionQrScreen extends StatelessWidget {
   final String orderId;
   final String productName;
+  final String productImage;
   final double quantity;
   final String collectionPoint;
 
@@ -11,6 +14,7 @@ class CollectionQrScreen extends StatelessWidget {
     super.key,
     required this.orderId,
     required this.productName,
+    required this.productImage,
     required this.quantity,
     required this.collectionPoint,
   });
@@ -20,7 +24,7 @@ class CollectionQrScreen extends StatelessWidget {
     final qrData = "ORDER_ID:$orderId";
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Collection QR")),
+      appBar: AppBar(title: Text(LanguageService.t("collection_qr_title"))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -47,14 +51,14 @@ class CollectionQrScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.check_circle, color: Colors.green.shade700, size: 18),
                     const SizedBox(width: 6),
-                    Text("Reservation Confirmed", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600)),
+                    Text(LanguageService.t("reservation_confirmed"), style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                "Show this QR at Collection Point",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                LanguageService.t("show_qr_at_point"),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -68,11 +72,19 @@ class CollectionQrScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _detailRow(Icons.confirmation_number_outlined, "Order ID", orderId),
+                    _detailRow(Icons.confirmation_number_outlined, LanguageService.t("order_id_label"), orderId),
                     const Divider(height: 24),
-                    _detailRow(Icons.eco_outlined, "Product", "$productName - ${quantity.toStringAsFixed(1)} Kg"),
+                    _detailRow(
+                      Icons.eco_outlined,
+                      LanguageService.t("product_label"),
+                      "${getLocalizedProductName(productImage, productName, LanguageService.currentLang)} - ${quantity.toStringAsFixed(1)} Kg",
+                    ),
                     const Divider(height: 24),
-                    _detailRow(Icons.location_on_outlined, "Collection Point", collectionPoint),
+                    _detailRow(
+                      Icons.location_on_outlined,
+                      LanguageService.t("collection_point_label"),
+                      LanguageService.tCollectionPoint(collectionPoint),
+                    ),
 
                     const SizedBox(height: 30),
 
@@ -83,20 +95,20 @@ class CollectionQrScreen extends StatelessWidget {
                         color: Colors.orange.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
-                          Icon(Icons.volunteer_activism, color: Colors.orange, size: 28),
-                          SizedBox(height: 8),
+                          const Icon(Icons.volunteer_activism, color: Colors.orange, size: 28),
+                          const SizedBox(height: 8),
                           Text(
-                            "Thank you for supporting local farmers!",
+                            LanguageService.t("thank_you_farmers"),
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            "See you again soon on GreetFarm 🌾",
+                            LanguageService.t("see_you_again"),
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, color: Colors.black54),
+                            style: const TextStyle(fontSize: 12, color: Colors.black54),
                           ),
                         ],
                       ),
@@ -107,12 +119,10 @@ class CollectionQrScreen extends StatelessWidget {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: () {
-                          // Reserve/Collection Point/QR screens எல்லாம் pop பண்ணி,
-                          // Customer Dashboard-க்கு direct-ஆ திரும்பும்
                           Navigator.popUntil(context, (route) => route.isFirst);
                         },
                         icon: const Icon(Icons.home_outlined),
-                        label: const Text("Back to Dashboard"),
+                        label: Text(LanguageService.t("back_to_dashboard")),
                       ),
                     ),
                   ],

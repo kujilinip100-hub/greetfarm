@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'collection_qr_screen.dart';
 import '../services/reservation_service.dart';
 import '../services/session.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
+import '../widgets/product_image_helper.dart';
 
 class CollectionPointScreen extends StatefulWidget {
   final String orderId;
-  final int productId; // ✅ புது field
+  final int productId;
   final String productName;
+  final String productImage;
   final double quantity;
 
   const CollectionPointScreen({
@@ -14,6 +18,7 @@ class CollectionPointScreen extends StatefulWidget {
     required this.orderId,
     required this.productId,
     required this.productName,
+    required this.productImage,
     required this.quantity,
   });
 
@@ -22,12 +27,12 @@ class CollectionPointScreen extends StatefulWidget {
 }
 
 class _CollectionPointScreenState extends State<CollectionPointScreen> {
-  final List<Map<String, String>> collectionPoints = [
-    {"name": "Jaffna Collection Center", "distance": "2 Km Away"},
-    {"name": "Vavuniya Collection Center", "distance": "5 Km Away"},
-    {"name": "Kilinochi Collection Center", "distance": "7 Km Away"},
-    {"name": "Mannar Collection Center", "distance": "10 Km Away"},
-    {"name": "Trincomalee Collection Center", "distance": "12 Km Away"},
+  final List<Map<String, dynamic>> collectionPoints = [
+    {"name": "Jaffna Collection Center", "distanceKm": 2},
+    {"name": "Vavuniya Collection Center", "distanceKm": 5},
+    {"name": "Kilinochi Collection Center", "distanceKm": 7},
+    {"name": "Mannar Collection Center", "distanceKm": 10},
+    {"name": "Trincomalee Collection Center", "distanceKm": 12},
   ];
 
   int? selectedIndex;
@@ -36,7 +41,7 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Collection Point")),
+      appBar: AppBar(title: Text(LanguageService.t("collection_point_title"))),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -51,11 +56,21 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.eco, color: Colors.green),
-                  const SizedBox(width: 10),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: ProductImageHelper.getImage(widget.productImage, size: 30),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "${widget.productName} • ${widget.quantity.toStringAsFixed(1)} Kg",
+                      "${getLocalizedProductName(widget.productImage, widget.productName, LanguageService.currentLang)} • ${widget.quantity.toStringAsFixed(1)} Kg",
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -63,7 +78,7 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Select Collection Point", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(LanguageService.t("select_collection_point"), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -71,6 +86,8 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
                 itemBuilder: (context, index) {
                   final point = collectionPoints[index];
                   final isSelected = selectedIndex == index;
+                  final englishName = point["name"] as String;
+                  final distanceKm = point["distanceKm"];
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -85,8 +102,11 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
                         isSelected ? Icons.check_circle : Icons.location_on_outlined,
                         color: Colors.green,
                       ),
-                      title: Text(point["name"]!, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text(point["distance"]!),
+                      title: Text(
+                        LanguageService.tCollectionPoint(englishName),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text("$distanceKm ${LanguageService.t("km_away")}"),
                       onTap: () => setState(() => selectedIndex = index),
                     ),
                   );
@@ -102,11 +122,13 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
                     : () async {
                         setState(() => isSubmitting = true);
 
+                        final selectedPointName = collectionPoints[selectedIndex!]["name"] as String;
+
                         final result = await ReservationService.reserveProduct(
                           customerId: Session.userId!,
                           productId: widget.productId,
                           quantity: widget.quantity,
-                          collectionPoint: collectionPoints[selectedIndex!]["name"]!,
+                          collectionPoint: selectedPointName,
                         );
 
                         if (!mounted) return;
@@ -119,8 +141,9 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
                               builder: (_) => CollectionQrScreen(
                                 orderId: result["order_id"].toString(),
                                 productName: widget.productName,
+                                productImage: widget.productImage,
                                 quantity: widget.quantity,
-                                collectionPoint: collectionPoints[selectedIndex!]["name"]!,
+                                collectionPoint: selectedPointName,
                               ),
                             ),
                           );
@@ -132,7 +155,7 @@ class _CollectionPointScreenState extends State<CollectionPointScreen> {
                       },
                 child: isSubmitting
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text("Continue"),
+                    : Text(LanguageService.t("continue_btn")),
               ),
             ),
           ],

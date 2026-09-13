@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/product_model.dart';
 import '../widgets/product_image_helper.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 import 'reserve_product_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
@@ -19,10 +21,23 @@ class ProductDetailsScreen extends StatelessWidget {
     }
   }
 
+  String _localizedCategory(String category) {
+    switch (category) {
+      case "Vegetables":
+        return LanguageService.t("cat_vegetables");
+      case "Fruits":
+        return LanguageService.t("cat_fruits");
+      case "Grains":
+        return LanguageService.t("cat_grains");
+      default:
+        return LanguageService.t("cat_other");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Product Details")),
+      appBar: AppBar(title: Text(LanguageService.t("product_details_title"))),
       body: Column(
         children: [
           Expanded(
@@ -54,16 +69,16 @@ class ProductDetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          product.productName,
+                          getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
                           style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                                                const SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Text(
-                          product.category,
+                          _localizedCategory(product.category),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
@@ -71,7 +86,7 @@ class ProductDetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Sold by ${product.farmerName}",
+                          "${LanguageService.t("sold_by")} ${product.farmerName}",
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white70,
@@ -90,7 +105,7 @@ class ProductDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: _statCard(
                                 Icons.attach_money,
-                                "Price",
+                                LanguageService.t("price_label"),
                                 "Rs.${product.price}/kg",
                               ),
                             ),
@@ -98,7 +113,7 @@ class ProductDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: _statCard(
                                 Icons.scale,
-                                "Available",
+                                LanguageService.t("available_label"),
                                 "${product.quantity} Kg",
                               ),
                             ),
@@ -107,7 +122,7 @@ class ProductDetailsScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         _statCard(
                           Icons.calendar_today,
-                          "Harvest Date",
+                          LanguageService.t("harvest_date"),
                           product.harvestDate,
                           fullWidth: true,
                         ),
@@ -147,16 +162,16 @@ class ProductDetailsScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        "Farmer's Location",
-                                        style: TextStyle(
+                                      Text(
+                                        LanguageService.t("farmers_location"),
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        "Approximately ${product.distanceKm} Km away",
+                                        "${LanguageService.t("approx_away")} ${product.distanceKm} ${LanguageService.t("km_away")}",
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
@@ -164,9 +179,9 @@ class ProductDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 2),
-                                      const Text(
-                                        "Tap to view on map",
-                                        style: TextStyle(
+                                      Text(
+                                        LanguageService.t("tap_view_map"),
+                                        style: const TextStyle(
                                           fontSize: 11,
                                           color: Colors.blue,
                                         ),
@@ -209,7 +224,9 @@ class ProductDetailsScreen extends StatelessWidget {
                       },
                 icon: const Icon(Icons.shopping_bag_outlined),
                 label: Text(
-                  product.quantity <= 0 ? "Out of Stock" : "Reserve Product",
+                  product.quantity <= 0
+                      ? LanguageService.t("out_of_stock")
+                      : LanguageService.t("reserve_product_title"),
                 ),
               ),
             ),

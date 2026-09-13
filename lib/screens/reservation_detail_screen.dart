@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/reservation_model.dart';
 import '../services/reservation_service.dart';
 import '../widgets/status_badge.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 
 class ReservationDetailScreen extends StatefulWidget {
   final ReservationModel order;
@@ -36,7 +38,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     if (result["status"] == "success") {
       setState(() => currentStatus = "Ready");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Order marked as Ready for collection!")),
+        SnackBar(content: Text(LanguageService.t("order_ready_msg"))),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +52,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     final order = widget.order;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Reservation Details")),
+      appBar: AppBar(title: Text(LanguageService.t("reservation_details_title"))),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -73,9 +75,10 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                       ],
                     ),
                     const Divider(height: 30),
-                    _infoRow(Icons.eco, "Product", order.productName),
+                    _infoRow(Icons.eco, LanguageService.t("product_label"),
+                        getLocalizedProductName(order.image, order.productName, LanguageService.currentLang)),
                     const SizedBox(height: 12),
-                    _infoRow(Icons.scale, "Quantity", "${order.quantity} Kg"),
+                    _infoRow(Icons.scale, LanguageService.t("quantity_label"), "${order.quantity} Kg"),
                   ],
                 ),
               ),
@@ -93,7 +96,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
                       : const Icon(Icons.check_circle_outline),
-                  label: Text(isUpdating ? "Updating..." : "MARK AS READY"),
+                  label: Text(isUpdating ? LanguageService.t("updating") : LanguageService.t("mark_as_ready")),
                 ),
               )
             else
@@ -111,8 +114,8 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                     const SizedBox(width: 10),
                     Text(
                       currentStatus == "Collected"
-                          ? "This order has been collected"
-                          : "Waiting for customer to collect",
+                          ? LanguageService.t("order_collected_msg")
+                          : LanguageService.t("waiting_customer_collect"),
                       style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
                     ),
                   ],

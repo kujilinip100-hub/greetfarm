@@ -5,6 +5,8 @@ import '../widgets/empty_state.dart';
 import 'edit_product_screen.dart';
 import '../widgets/product_image_helper.dart';
 import '../services/session.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 
 class MyProductsScreen extends StatefulWidget {
   const MyProductsScreen({super.key});
@@ -32,13 +34,13 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Products")),
+      appBar: AppBar(title: Text(LanguageService.t("my_products_title"))),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : products.isEmpty
-              ? const EmptyState(
+              ? EmptyState(
                   icon: Icons.inventory_2_outlined,
-                  message: "No Products Added Yet 🌾\nTap 'Add Product' to get started",
+                  message: LanguageService.t("no_products_added"),
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(15),
@@ -68,7 +70,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    product.productName,
+                                    getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
                                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 4),
@@ -96,16 +98,19 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                                   context: context,
                                   builder: (_) => AlertDialog(
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    title: const Text("Delete Product"),
-                                    content: Text("Remove ${product.productName} permanently?"),
+                                    title: Text(LanguageService.t("delete_product_title")),
+                                    content: Text(LanguageService.t("remove_confirm_msg").replaceAll(
+                                      "{name}",
+                                      getLocalizedProductName(product.image, product.productName, LanguageService.currentLang),
+                                    )),
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.pop(context, false),
-                                        child: const Text("Cancel"),
+                                        child: Text(LanguageService.t("cancel")),
                                       ),
                                       TextButton(
                                         onPressed: () => Navigator.pop(context, true),
-                                        child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                        child: Text(LanguageService.t("delete"), style: const TextStyle(color: Colors.red)),
                                       ),
                                     ],
                                   ),

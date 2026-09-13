@@ -8,6 +8,9 @@ import 'notifications_screen.dart';
 import '../services/notification_service.dart';
 import '../services/session.dart';
 import 'spending_analytics_screen.dart';
+import '../services/language_service.dart';
+import '../services/cart_service.dart';
+import 'cart_screen.dart';
 
 class CustomerDashboard extends StatefulWidget {
   const CustomerDashboard({super.key});
@@ -44,8 +47,35 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Customer Dashboard"),
+        title: Text(LanguageService.t("customer") + " Dashboard"),
         actions: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart_outlined),
+                onPressed: () async {
+                  await Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+                  setState(() {});
+                },
+              ),
+              if (CartService.itemCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      "${CartService.itemCount}",
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -91,9 +121,9 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 28,
                       backgroundColor: Colors.white24,
                       child: Icon(Icons.location_on, color: Colors.white, size: 28),
@@ -104,17 +134,17 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Nearby Farmers",
-                            style: TextStyle(
+                            LanguageService.t("nearby_farmers"),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
                           Text(
-                            "Fresh vegetables from local farmers",
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                            LanguageService.t("fresh_veg_desc"),
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
                           ),
                         ],
                       ),
@@ -133,7 +163,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                   children: [
                     DashboardTile(
                       icon: Icons.storefront_rounded,
-                      title: "Browse Products",
+                      title: LanguageService.t("browse_products"),
                       color: const Color(0xFF2E7D32),
                       onTap: () => Navigator.push(
                         context,
@@ -142,7 +172,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     ),
                     DashboardTile(
                       icon: Icons.receipt_long_rounded,
-                      title: "My Orders",
+                      title: LanguageService.t("my_orders"),
                       color: const Color(0xFFFF9800),
                       onTap: () => Navigator.push(
                         context,
@@ -151,7 +181,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     ),
                     DashboardTile(
                       icon: Icons.person_rounded,
-                      title: "Profile",
+                      title: LanguageService.t("profile"),
                       color: const Color(0xFF66BB6A),
                       onTap: () => Navigator.push(
                         context,
@@ -160,7 +190,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     ),
                     DashboardTile(
                       icon: Icons.bar_chart_rounded,
-                      title: "My Spending",
+                      title: LanguageService.t("my_spending"),
                       color: const Color(0xFFFF9800),
                       onTap: () => Navigator.push(
                         context,
@@ -185,7 +215,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     );
                   },
                   icon: const Icon(Icons.logout, color: Colors.white),
-                  label: const Text("Logout", style: TextStyle(color: Colors.white)),
+                  label: Text(LanguageService.t("logout"), style: const TextStyle(color: Colors.white)),
                 ),
               ),
             ),

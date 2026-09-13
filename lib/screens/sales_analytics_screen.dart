@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/analytics_service.dart';
 import '../services/session.dart';
 import '../widgets/product_image_helper.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
 
 class SalesAnalyticsScreen extends StatefulWidget {
   const SalesAnalyticsScreen({super.key});
@@ -66,7 +68,7 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F9F4),
-      appBar: AppBar(title: const Text("Sales Analytics")),
+      appBar: AppBar(title: Text(LanguageService.t("sales_analytics_title"))),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -93,7 +95,7 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
                       children: [
                         const Icon(Icons.savings_rounded, color: Colors.white, size: 32),
                         const SizedBox(height: 10),
-                        const Text("Total Earnings (All Time)", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        Text(LanguageService.t("total_earnings_alltime"), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                         const SizedBox(height: 6),
                         Text(
                           "Rs.${grandTotal.toStringAsFixed(0)}",
@@ -105,7 +107,7 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
                   const SizedBox(height: 24),
 
                   // ---------- Weekly bar chart ----------
-                  const Text("This Week", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(LanguageService.t("this_week_label"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -148,12 +150,12 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
                   const SizedBox(height: 24),
 
                   // ---------- Top products grid (all-time) ----------
-                  const Text("Top Products (All Time)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(LanguageService.t("top_products_alltime"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   if (allTime.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: Text("No completed sales yet", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                      child: Text(LanguageService.t("no_completed_sales"), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
                     )
                   else
                     GridView.builder(
@@ -190,9 +192,11 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
                                 child: ProductImageHelper.getImage(e["image"], size: 50),
                               ),
                               const SizedBox(height: 4),
-                              Text(e["product_name"] ?? "",
-                                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11)),
+                              Text(
+                                getLocalizedProductName(e["image"], e["product_name"] ?? "", LanguageService.currentLang),
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+                              ),
                               Text("${e["total_qty"]} Kg", style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
                               Text("Rs.${amt.toStringAsFixed(0)}",
                                   style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2E7D32), fontSize: 11)),
@@ -204,17 +208,17 @@ class _SalesAnalyticsScreenState extends State<SalesAnalyticsScreen> {
                   const SizedBox(height: 24),
 
                   // ---------- This month breakdown ----------
-                  const Text("This Month (by week)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(LanguageService.t("this_month_by_week"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   if (thisMonth.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: Text("No sales this month yet", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                      child: Text(LanguageService.t("no_sales_this_month"), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
                     )
                   else
                     ...thisMonth.map((e) => _saleTile(
                           image: e["image"],
-                          title: "${e["product_name"]}",
+                          title: getLocalizedProductName(e["image"], "${e["product_name"]}", LanguageService.currentLang),
                           subtitle: "${e["week_start"]} to ${e["week_end"]} • ${e["total_qty"]} Kg",
                           amount: e["total_amount"],
                         )),

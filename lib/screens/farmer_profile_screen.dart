@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/profile_service.dart';
 import '../services/session.dart';
+import '../services/language_service.dart';
 
 class FarmerProfileScreen extends StatefulWidget {
   const FarmerProfileScreen({super.key});
@@ -58,7 +59,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result["message"] ?? "Profile updated!")),
+      SnackBar(content: Text(result["message"] ?? LanguageService.t("profile_updated"))),
     );
   }
 
@@ -73,7 +74,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Farmer Profile"),
+        title: Text(LanguageService.t("farmer_profile_title")),
         actions: [
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit, color: Colors.white),
@@ -106,9 +107,9 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                   TextField(
                     controller: nameController,
                     enabled: isEditing,
-                    decoration: const InputDecoration(
-                      labelText: "Name",
-                      prefixIcon: Icon(Icons.badge_outlined),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.t("name"),
+                      prefixIcon: const Icon(Icons.badge_outlined),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -116,17 +117,17 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                     controller: phoneController,
                     enabled: isEditing,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      labelText: "Phone Number",
-                      prefixIcon: Icon(Icons.phone_outlined),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.t("phone_number"),
+                      prefixIcon: const Icon(Icons.phone_outlined),
                     ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     initialValue: selectedLocation,
-                    decoration: const InputDecoration(
-                      labelText: "Location",
-                      prefixIcon: Icon(Icons.location_on_outlined),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.t("location_label"),
+                      prefixIcon: const Icon(Icons.location_on_outlined),
                     ),
                     items: locations
                         .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../services/product_service.dart';
+import '../services/language_service.dart';
+import '../data/product_images.dart';
+import '../widgets/product_image_helper.dart';
 
 class EditProductScreen extends StatefulWidget {
   final ProductModel product;
@@ -67,7 +70,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Product")),
+      appBar: AppBar(title: Text(LanguageService.t("edit_product_title"))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -81,15 +84,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
               ),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.eco, color: Colors.white),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle),
+                    child: ClipOval(
+                      child: ProductImageHelper.getImage(widget.product.image, size: 34),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      "Editing: ${widget.product.productName}",
+                      "${LanguageService.t("editing_prefix")}: ${getLocalizedProductName(widget.product.image, widget.product.productName, LanguageService.currentLang)}",
                       style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -100,13 +106,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: "Product Name", prefixIcon: Icon(Icons.eco_outlined)),
+              decoration: InputDecoration(labelText: LanguageService.t("product_name"), prefixIcon: const Icon(Icons.eco_outlined)),
             ),
             const SizedBox(height: 16),
 
             TextField(
               controller: categoryController,
-              decoration: const InputDecoration(labelText: "Category", prefixIcon: Icon(Icons.category_outlined)),
+              decoration: InputDecoration(labelText: LanguageService.t("category"), prefixIcon: const Icon(Icons.category_outlined)),
             ),
             const SizedBox(height: 16),
 
@@ -116,7 +122,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   child: TextField(
                     controller: priceController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Price", prefixIcon: Icon(Icons.attach_money)),
+                    decoration: InputDecoration(labelText: LanguageService.t("price_label"), prefixIcon: const Icon(Icons.attach_money)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -124,7 +130,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   child: TextField(
                     controller: quantityController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Quantity", prefixIcon: Icon(Icons.scale_outlined)),
+                    decoration: InputDecoration(labelText: LanguageService.t("quantity_label"), prefixIcon: const Icon(Icons.scale_outlined)),
                   ),
                 ),
               ],
@@ -133,7 +139,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
             TextField(
               controller: harvestController,
-              decoration: const InputDecoration(labelText: "Harvest Date", prefixIcon: Icon(Icons.calendar_today_outlined)),
+              decoration: InputDecoration(labelText: LanguageService.t("harvest_date"), prefixIcon: const Icon(Icons.calendar_today_outlined)),
             ),
             const SizedBox(height: 30),
 
@@ -147,7 +153,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         height: 18, width: 18,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Icon(Icons.save_outlined),
-                label: Text(isSubmitting ? "Updating..." : "UPDATE PRODUCT"),
+                label: Text(isSubmitting ? LanguageService.t("updating") : LanguageService.t("update_product_btn")),
               ),
             ),
           ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/product_service.dart';
-import '../services/session.dart';
 import '../data/product_images.dart';
+import '../services/language_service.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -26,8 +26,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   bool isSubmitting = false;
 
-  // Preset product images - filename + icon + display label
-    final List<ProductImageData> presetImages = allProductImages;
+  final List<ProductImageData> presetImages = allProductImages;
 
   String selectedImage = "no_image.jpg";
 
@@ -54,7 +53,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     setState(() => isSubmitting = true);
 
     final result = await ProductService.addProduct(
-      farmerId: Session.userId!,
+      farmerId: 1,
       productName: nameController.text.trim(),
       category: categoryController.text.trim(),
       price: priceController.text.trim(),
@@ -93,7 +92,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Product")),
+      appBar: AppBar(title: Text(LanguageService.t("add_product_title"))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -115,10 +114,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: const Icon(Icons.add_box_rounded, color: Colors.white, size: 26),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        "List a new product for customers to discover",
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        LanguageService.t("list_new_product"),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -128,14 +127,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
               TextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: "Product Name", prefixIcon: Icon(Icons.eco_outlined)),
+                decoration: InputDecoration(labelText: LanguageService.t("product_name"), prefixIcon: const Icon(Icons.eco_outlined)),
                 validator: (value) => (value == null || value.trim().isEmpty) ? "Product name is required" : null,
               ),
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: categoryController,
-                decoration: const InputDecoration(labelText: "Category", prefixIcon: Icon(Icons.category_outlined)),
+                decoration: InputDecoration(labelText: LanguageService.t("category"), prefixIcon: const Icon(Icons.category_outlined)),
                 validator: (value) => (value == null || value.trim().isEmpty) ? "Category is required" : null,
               ),
               const SizedBox(height: 16),
@@ -146,7 +145,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     child: TextFormField(
                       controller: priceController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Price (Rs)", prefixIcon: Icon(Icons.attach_money)),
+                      decoration: InputDecoration(labelText: LanguageService.t("price"), prefixIcon: const Icon(Icons.attach_money)),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) return "Required";
                         if (double.tryParse(value) == null) return "Invalid";
@@ -159,7 +158,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     child: TextFormField(
                       controller: quantityController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Quantity (Kg)", prefixIcon: Icon(Icons.scale_outlined)),
+                      decoration: InputDecoration(labelText: LanguageService.t("quantity"), prefixIcon: const Icon(Icons.scale_outlined)),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) return "Required";
                         if (double.tryParse(value) == null) return "Invalid";
@@ -175,10 +174,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 controller: harvestDateController,
                 readOnly: true,
                 onTap: pickDate,
-                decoration: const InputDecoration(
-                  labelText: "Harvest Date",
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
+                decoration: InputDecoration(
+                  labelText: LanguageService.t("harvest_date"),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
+                  suffixIcon: const Icon(Icons.arrow_drop_down),
                 ),
                 validator: (value) => (value == null || value.trim().isEmpty) ? "Select harvest date" : null,
               ),
@@ -187,9 +186,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
               // Distance Dropdown Field
               DropdownButtonFormField<int>(
                 initialValue: selectedDistance,
-                decoration: const InputDecoration(
-                  labelText: "Distance from Collection Point (Km)",
-                  prefixIcon: Icon(Icons.social_distance_outlined),
+                decoration: InputDecoration(
+                  labelText: LanguageService.t("distance"),
+                  prefixIcon: const Icon(Icons.social_distance_outlined),
                 ),
                 items: distanceOptions
                     .map((d) => DropdownMenuItem(value: d, child: Text("$d Km")))
@@ -201,10 +200,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
               TextFormField(
                 controller: descriptionController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: "Product Description (Optional)",
+                decoration: InputDecoration(
+                  labelText: LanguageService.t("description"),
                   alignLabelWithHint: true,
-                  prefixIcon: Icon(Icons.notes_outlined),
+                  prefixIcon: const Icon(Icons.notes_outlined),
                 ),
               ),
               const SizedBox(height: 24),
@@ -213,7 +212,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Choose Product Image",
+                  LanguageService.t("choose_image"),
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
                 ),
               ),
@@ -256,7 +255,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                              child: item.asset == ""
+                            child: item.asset == ""
                                 ? Icon(Icons.image_not_supported_outlined, size: 30, color: Colors.grey.shade400)
                                 : Image.asset(
                                     item.asset,
@@ -269,7 +268,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            item.label,
+                            item.localizedLabel(LanguageService.currentLang),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
                           ),
@@ -291,7 +290,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           height: 18, width: 18,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Icon(Icons.check_circle_outline),
-                  label: Text(isSubmitting ? "Adding..." : "Add Product"),
+                  label: Text(isSubmitting ? LanguageService.t("adding") : LanguageService.t("add_product_btn")),
                 ),
               ),
             ],

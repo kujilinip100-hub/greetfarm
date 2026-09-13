@@ -3,6 +3,7 @@ import 'admin_users_screen.dart';
 import 'admin_products_screen.dart';
 import '../widgets/dashboard_tile.dart';
 import 'login_screen.dart';
+import '../services/language_service.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -10,7 +11,7 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Admin Dashboard")),
+      appBar: AppBar(title: Text(LanguageService.t("admin_dashboard_title"))),
       body: SafeArea(
         child: Column(
           children: [
@@ -27,18 +28,18 @@ class AdminDashboard extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 28,
                       backgroundColor: Colors.white24,
                       child: Icon(Icons.admin_panel_settings, color: Colors.white, size: 28),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        "Platform Administration",
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        LanguageService.t("platform_administration"),
+                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -55,13 +56,13 @@ class AdminDashboard extends StatelessWidget {
                   children: [
                     DashboardTile(
                       icon: Icons.people_alt_rounded,
-                      title: "Manage Users",
+                      title: LanguageService.t("manage_users"),
                       color: const Color(0xFF2E7D32),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
                     ),
                     DashboardTile(
                       icon: Icons.inventory_2_rounded,
-                      title: "Manage Products",
+                      title: LanguageService.t("manage_products"),
                       color: const Color(0xFFFF9800),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminProductsScreen())),
                     ),
@@ -83,7 +84,7 @@ class AdminDashboard extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.logout, color: Colors.white),
-                  label: const Text("Logout", style: TextStyle(color: Colors.white)),
+                  label: Text(LanguageService.t("logout"), style: const TextStyle(color: Colors.white)),
                 ),
               ),
             ),

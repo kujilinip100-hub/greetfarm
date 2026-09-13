@@ -14,6 +14,7 @@ import '../services/session.dart';
 import '../services/notification_service.dart';
 import 'notifications_screen.dart';
 import 'sales_analytics_screen.dart';
+import '../services/language_service.dart';
 
 class FarmerDashboard extends StatefulWidget {
   const FarmerDashboard({super.key});
@@ -119,9 +120,9 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Welcome Farmer 👋",
-                            style: TextStyle(
+                          Text(
+                            "${LanguageService.t("welcome_farmer")} 👋",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -157,49 +158,49 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
                   children: [
                     DashboardTile(
                       icon: Icons.add_box_rounded,
-                      title: "Add Product",
+                      title: LanguageService.t("add_product"),
                       color: const Color(0xFF2E7D32),
                       onTap: () => refreshAndGo(const AddProductScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.inventory_2_rounded,
-                      title: "My Products",
+                      title: LanguageService.t("my_products"),
                       color: const Color(0xFF388E3C),
                       onTap: () => refreshAndGo(const MyProductsScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.shopping_bag_rounded,
-                      title: "View Orders",
+                      title: LanguageService.t("view_orders"),
                       color: const Color(0xFFFF9800),
                       onTap: () => refreshAndGo(const ViewOrdersScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.calendar_month_rounded,
-                      title: "Harvest Calendar",
+                      title: LanguageService.t("harvest_calendar"),
                       color: const Color(0xFF43A047),
                       onTap: () => refreshAndGo(const HarvestCalendarScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.qr_code_scanner_rounded,
-                      title: "QR Scanner",
+                      title: LanguageService.t("qr_scanner"),
                       color: const Color(0xFF00897B),
                       onTap: () => refreshAndGo(const QRScannerScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.person_rounded,
-                      title: "Profile",
+                      title: LanguageService.t("profile"),
                       color: const Color(0xFF66BB6A),
                       onTap: () => refreshAndGo(const FarmerProfileScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.insights,
-                      title: "Demand Prediction",
+                      title: LanguageService.t("demand_prediction"),
                       color: const Color(0xFF7B1FA2),
                       onTap: () => refreshAndGo(const DemandPredictionScreen()),
                     ),
                     DashboardTile(
                       icon: Icons.bar_chart_rounded,
-                      title: "Sales Analytics",
+                      title: LanguageService.t("sales_analytics"),
                       color: const Color(0xFF00695C),
                       onTap: () => refreshAndGo(const SalesAnalyticsScreen()),
                     ),
@@ -230,7 +231,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
                     );
                   },
                   icon: const Icon(Icons.logout),
-                  label: const Text("Logout"),
+                  label: Text(LanguageService.t("logout")),
                 ),
               ),
             ),

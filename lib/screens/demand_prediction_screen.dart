@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/ai_service.dart';
+import '../services/language_service.dart';
 
 class DemandPredictionScreen extends StatefulWidget {
   const DemandPredictionScreen({super.key});
@@ -30,16 +31,54 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
   String? errorMessage;
 
   final Map<String, String> categoryDisplayToModel = {
-  "Vegetables": "Groceries",
-  "Fruits": "Groceries",
-  "Grains": "Groceries",
-  "Other Produce": "Groceries",
-};
+    "Vegetables": "Groceries",
+    "Fruits": "Groceries",
+    "Grains": "Groceries",
+    "Other Produce": "Groceries",
+  };
 
   List<String> get categories => categoryDisplayToModel.keys.toList();
   final List<String> regions = ["North", "South", "East", "West"];
   final List<String> weatherOptions = ["Sunny", "Rainy", "Cloudy", "Snowy"];
   final List<String> seasons = ["Summer", "Winter", "Spring", "Autumn"];
+
+  // Underlying value English-லேயே இருக்கும் (backend-ku poguthu),
+  // display text mattum translate pannuvom
+  String _catDisplay(String c) {
+    switch (c) {
+      case "Vegetables": return LanguageService.t("cat_vegetables");
+      case "Fruits": return LanguageService.t("cat_fruits");
+      case "Grains": return LanguageService.t("cat_grains");
+      default: return LanguageService.t("cat_other");
+    }
+  }
+
+  String _regionDisplay(String r) {
+    switch (r) {
+      case "North": return LanguageService.t("region_north");
+      case "South": return LanguageService.t("region_south");
+      case "East": return LanguageService.t("region_east");
+      default: return LanguageService.t("region_west");
+    }
+  }
+
+  String _weatherDisplay(String w) {
+    switch (w) {
+      case "Sunny": return LanguageService.t("weather_sunny");
+      case "Rainy": return LanguageService.t("weather_rainy");
+      case "Cloudy": return LanguageService.t("weather_cloudy");
+      default: return LanguageService.t("weather_snowy");
+    }
+  }
+
+  String _seasonDisplay(String s) {
+    switch (s) {
+      case "Summer": return LanguageService.t("season_summer");
+      case "Winter": return LanguageService.t("season_winter");
+      case "Spring": return LanguageService.t("season_spring");
+      default: return LanguageService.t("season_autumn");
+    }
+  }
 
   Future<void> getPrediction() async {
     if (!_formKey.currentState!.validate()) return;
@@ -88,7 +127,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Demand Prediction")),
+      appBar: AppBar(title: Text(LanguageService.t("demand_prediction_title"))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -110,10 +149,10 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                       child: const Icon(Icons.insights, color: Colors.white, size: 26),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        "AI-powered demand forecast based on market conditions",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                        LanguageService.t("ai_forecast_desc"),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -127,8 +166,8 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedCategory,
-                      decoration: const InputDecoration(labelText: "Category", prefixIcon: Icon(Icons.category_outlined)),
-                      items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                      decoration: InputDecoration(labelText: LanguageService.t("category"), prefixIcon: const Icon(Icons.category_outlined)),
+                      items: categories.map((c) => DropdownMenuItem(value: c, child: Text(_catDisplay(c)))).toList(),
                       onChanged: (v) => setState(() => selectedCategory = v!),
                     ),
                   ),
@@ -136,8 +175,8 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedRegion,
-                      decoration: const InputDecoration(labelText: "Region", prefixIcon: Icon(Icons.map_outlined)),
-                      items: regions.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                      decoration: InputDecoration(labelText: LanguageService.t("region_label"), prefixIcon: const Icon(Icons.map_outlined)),
+                      items: regions.map((r) => DropdownMenuItem(value: r, child: Text(_regionDisplay(r)))).toList(),
                       onChanged: (v) => setState(() => selectedRegion = v!),
                     ),
                   ),
@@ -148,7 +187,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
               TextFormField(
                 controller: inventoryController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Inventory Level", prefixIcon: Icon(Icons.inventory_2_outlined)),
+                decoration: InputDecoration(labelText: LanguageService.t("inventory_level_label"), prefixIcon: const Icon(Icons.inventory_2_outlined)),
                 validator: (v) => _validateNumber(v),
               ),
               const SizedBox(height: 16),
@@ -159,7 +198,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                     child: TextFormField(
                       controller: unitsSoldController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Units Sold", prefixIcon: Icon(Icons.sell_outlined)),
+                      decoration: InputDecoration(labelText: LanguageService.t("units_sold_label"), prefixIcon: const Icon(Icons.sell_outlined)),
                       validator: (v) => _validateNumber(v),
                     ),
                   ),
@@ -168,7 +207,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                     child: TextFormField(
                       controller: unitsOrderedController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Units Ordered", prefixIcon: Icon(Icons.shopping_cart_outlined)),
+                      decoration: InputDecoration(labelText: LanguageService.t("units_ordered_label"), prefixIcon: const Icon(Icons.shopping_cart_outlined)),
                       validator: (v) => _validateNumber(v),
                     ),
                   ),
@@ -182,7 +221,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                     child: TextFormField(
                       controller: priceController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Price (Rs)", prefixIcon: Icon(Icons.attach_money)),
+                      decoration: InputDecoration(labelText: LanguageService.t("price"), prefixIcon: const Icon(Icons.attach_money)),
                       validator: (v) => _validateNumber(v),
                     ),
                   ),
@@ -191,7 +230,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                     child: TextFormField(
                       controller: discountController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Discount %", prefixIcon: Icon(Icons.percent)),
+                      decoration: InputDecoration(labelText: LanguageService.t("discount_pct_label"), prefixIcon: const Icon(Icons.percent)),
                       validator: (v) => _validateNumber(v),
                     ),
                   ),
@@ -202,7 +241,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
               TextFormField(
                 controller: competitorPriceController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Competitor Pricing (Rs)", prefixIcon: Icon(Icons.compare_arrows)),
+                decoration: InputDecoration(labelText: LanguageService.t("competitor_pricing_label"), prefixIcon: const Icon(Icons.compare_arrows)),
                 validator: (v) => _validateNumber(v),
               ),
               const SizedBox(height: 16),
@@ -212,8 +251,8 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedWeather,
-                      decoration: const InputDecoration(labelText: "Weather", prefixIcon: Icon(Icons.wb_sunny_outlined)),
-                      items: weatherOptions.map((w) => DropdownMenuItem(value: w, child: Text(w))).toList(),
+                      decoration: InputDecoration(labelText: LanguageService.t("weather_label"), prefixIcon: const Icon(Icons.wb_sunny_outlined)),
+                      items: weatherOptions.map((w) => DropdownMenuItem(value: w, child: Text(_weatherDisplay(w)))).toList(),
                       onChanged: (v) => setState(() => selectedWeather = v!),
                     ),
                   ),
@@ -221,8 +260,8 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedSeason,
-                      decoration: const InputDecoration(labelText: "Season", prefixIcon: Icon(Icons.calendar_month_outlined)),
-                      items: seasons.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                      decoration: InputDecoration(labelText: LanguageService.t("season_label"), prefixIcon: const Icon(Icons.calendar_month_outlined)),
+                      items: seasons.map((s) => DropdownMenuItem(value: s, child: Text(_seasonDisplay(s)))).toList(),
                       onChanged: (v) => setState(() => selectedSeason = v!),
                     ),
                   ),
@@ -231,14 +270,14 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
               const SizedBox(height: 10),
 
               SwitchListTile(
-                title: const Text("Promotion Active"),
+                title: Text(LanguageService.t("promotion_active_label")),
                 value: promotion,
                 activeThumbColor: Colors.green,
                 contentPadding: EdgeInsets.zero,
                 onChanged: (v) => setState(() => promotion = v),
               ),
               SwitchListTile(
-                title: const Text("Epidemic/Outbreak Situation"),
+                title: Text(LanguageService.t("epidemic_label")),
                 value: epidemic,
                 activeThumbColor: Colors.green,
                 contentPadding: EdgeInsets.zero,
@@ -256,7 +295,7 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                           height: 18, width: 18,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Icon(Icons.auto_graph),
-                  label: Text(isLoading ? "Predicting..." : "Predict Demand"),
+                  label: Text(isLoading ? LanguageService.t("predicting") : LanguageService.t("predict_demand_btn")),
                 ),
               ),
               const SizedBox(height: 24),
@@ -275,12 +314,12 @@ class _DemandPredictionScreenState extends State<DemandPredictionScreen> {
                       const Icon(Icons.trending_up, color: Colors.green, size: 32),
                       const SizedBox(height: 10),
                       Text(
-                        "Predicted Demand",
+                        LanguageService.t("predicted_demand_label"),
                         style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "${predictedDemand!.toStringAsFixed(0)} units",
+                        "${predictedDemand!.toStringAsFixed(0)} ${LanguageService.t("units_suffix")}",
                         style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
                       ),
                     ],
