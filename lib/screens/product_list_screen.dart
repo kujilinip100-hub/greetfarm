@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:geolocator/geolocator.dart';
 import '../models/product_model.dart';
 import '../services/product_service.dart';
+import '../services/cart_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/product_image_helper.dart';
 import '../services/language_service.dart';
 import '../data/product_images.dart';
+import '../utils/distance_helper.dart';
 import 'product_details_screen.dart';
-import '../services/cart_service.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -24,10 +27,95 @@ class _ProductListScreenState extends State<ProductListScreen> {
   int? selectedMaxDistance;
   final List<int?> distanceFilterOptions = [null, 2, 5, 10, 20];
 
+  final TextEditingController searchController = TextEditingController();
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _speechAvailable = false;
+
+  // Customer-oda real GPS location (kidaicha)
+  double? customerLat;
+  double? customerLng;
+
   @override
   void initState() {
     super.initState();
     loadProducts();
+    _initSpeech();
+    _getCustomerLocation();
+  }
+
+  // Speech recognition-a ஒரு முறை initialize pannurom
+  Future<void> _initSpeech() async {
+    _speechAvailable = await _speech.initialize();
+    setState(() {});
+  }
+
+  // Customer-oda current GPS location silent-ah eduthukirom
+  // (permission illainala, illa error vandhalum, manual distance-ku fallback aagum)
+  Future<void> _getCustomerLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        return; // Manual distance-e fallback aagum
+      }
+      final position = await Geolocator.getCurrentPosition();
+      setState(() {
+        customerLat = position.latitude;
+        customerLng = position.longitude;
+      });
+      _applyFilters();
+    } catch (e) {
+      // Location edukka mudiyalaina, problem illa -- manual distance fallback aagum
+    }
+  }
+
+  // Product-oda display distance-a return pannum:
+  // Farmer real GPS vachirundha + customer location kidaicha -> REAL distance
+  // Illainala -> farmer manual-ah type pannina distance_km (fallback)
+  double _getDisplayDistance(ProductModel product) {
+    if (customerLat != null &&
+        customerLng != null &&
+        product.farmerLat != null &&
+        product.farmerLng != null) {
+      return calculateDistanceKm(customerLat!, customerLng!, product.farmerLat!, product.farmerLng!);
+    }
+    return product.distanceKm.toDouble();
+  }
+
+  Future<void> _toggleListening() async {
+    if (!_speechAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(LanguageService.t("voice_not_available"))),
+      );
+      return;
+    }
+
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+      return;
+    }
+
+    setState(() => _isListening = true);
+    await _speech.listen(
+      onResult: (result) {
+        setState(() {
+          searchController.text = result.recognizedWords;
+          searchQuery = result.recognizedWords;
+          _applyFilters();
+        });
+      },
+      onSoundLevelChange: null,
+    );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadProducts() async {
@@ -43,7 +131,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           product.productName.toLowerCase().contains(searchQuery.toLowerCase());
 
       final matchesDistance =
-          selectedMaxDistance == null || product.distanceKm <= selectedMaxDistance!;
+          selectedMaxDistance == null || _getDisplayDistance(product) <= selectedMaxDistance!;
 
       return matchesSearch && matchesDistance;
     }).toList();
@@ -60,6 +148,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 15, 15, 8),
                   child: TextField(
+                    controller: searchController,
                     onChanged: (value) {
                       setState(() {
                         searchQuery = value;
@@ -69,9 +158,24 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     decoration: InputDecoration(
                       hintText: LanguageService.t("search_products"),
                       prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isListening ? Icons.mic : Icons.mic_none_outlined,
+                          color: _isListening ? Colors.red : Colors.grey.shade600,
+                        ),
+                        onPressed: _toggleListening,
+                      ),
                     ),
                   ),
                 ),
+                if (_isListening)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      LanguageService.t("listening"),
+                      style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: DropdownButtonFormField<int?>(
@@ -112,6 +216,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           itemCount: filteredProducts.length,
                           itemBuilder: (context, index) {
                             final product = filteredProducts[index];
+                            final displayDistance = _getDisplayDistance(product);
+                            final isRealGps = customerLat != null && product.farmerLat != null;
 
                             return InkWell(
                               borderRadius: BorderRadius.circular(18),
@@ -151,7 +257,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                             Center(
                                               child: ProductImageHelper.getImage(product.image, size: 90),
                                             ),
-                                            // Distance badge - top right corner
                                             Positioned(
                                               top: 8,
                                               right: 8,
@@ -167,11 +272,19 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    const Icon(Icons.location_on, size: 12, color: Colors.blue),
+                                                    Icon(
+                                                      isRealGps ? Icons.gps_fixed : Icons.location_on,
+                                                      size: 12,
+                                                      color: isRealGps ? Colors.green : Colors.blue,
+                                                    ),
                                                     const SizedBox(width: 2),
                                                     Text(
-                                                      "${product.distanceKm}km",
-                                                      style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600),
+                                                      "${displayDistance.toStringAsFixed(1)}km",
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: isRealGps ? Colors.green : Colors.blue,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -199,7 +312,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                             "${product.quantity.toStringAsFixed(1)} ${LanguageService.t("kg_available")}",
                                             style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                                           ),
-                                                                                    const SizedBox(height: 6),
+                                          const SizedBox(height: 6),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [

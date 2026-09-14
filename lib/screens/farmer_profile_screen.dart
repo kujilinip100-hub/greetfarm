@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../services/profile_service.dart';
 import '../services/session.dart';
 import '../services/language_service.dart';
@@ -27,6 +28,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
 
   bool isEditing = false;
   bool isLoading = true;
+  bool isGettingLocation = false;
 
   @override
   void initState() {
@@ -61,6 +63,55 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(result["message"] ?? LanguageService.t("profile_updated"))),
     );
+  }
+
+  // Farmer-oda real GPS location-a eduthu, database-la save pannurom
+  Future<void> updateFarmLocation() async {
+    setState(() => isGettingLocation = true);
+
+    try {
+      // Location permission check pannurom
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        setState(() => isGettingLocation = false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(LanguageService.t("location_error")), backgroundColor: Colors.red),
+        );
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+
+      final result = await ProfileService.updateLocation(
+        userId: Session.userId!,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      if (!mounted) return;
+      setState(() => isGettingLocation = false);
+
+      if (result["status"] == "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(LanguageService.t("location_updated")), backgroundColor: Colors.green),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result["message"] ?? LanguageService.t("location_error")), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      setState(() => isGettingLocation = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(LanguageService.t("location_error")), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -135,6 +186,40 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                     onChanged: isEditing
                         ? (value) => setState(() => selectedLocation = value!)
                         : null,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ---------- GPS Location Button ----------
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.gps_fixed, color: Colors.blue, size: 28),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                            onPressed: isGettingLocation ? null : updateFarmLocation,
+                            icon: isGettingLocation
+                                ? const SizedBox(
+                                    height: 18, width: 18,
+                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                : const Icon(Icons.my_location, color: Colors.white),
+                            label: Text(
+                              isGettingLocation ? LanguageService.t("getting_location") : LanguageService.t("update_farm_location"),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

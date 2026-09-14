@@ -10,6 +10,8 @@ class ProductModel {
   final String status;
   final int distanceKm;
   final String farmerName;
+  final double? farmerLat;
+  final double? farmerLng;
 
   ProductModel({
     required this.productId,
@@ -23,6 +25,8 @@ class ProductModel {
     required this.status,
     this.distanceKm = 5,
     this.farmerName = "",
+    this.farmerLat,
+    this.farmerLng,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +44,8 @@ class ProductModel {
           ? int.parse(json["distance_km"].toString())
           : 5,
       farmerName: json["farmer_name"] ?? "",
+      farmerLat: json["farmer_lat"] != null ? double.tryParse(json["farmer_lat"].toString()) : null,
+      farmerLng: json["farmer_lng"] != null ? double.tryParse(json["farmer_lng"].toString()) : null,
     );
   }
 }

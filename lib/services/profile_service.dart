@@ -36,4 +36,25 @@ class ProfileService {
       return {"status": "error", "message": e.toString()};
     }
   }
+
+  // Farmer-oda real GPS location-a save pannum
+  static Future<Map<String, dynamic>> updateLocation({
+    required int userId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}update_location.php"),
+        body: {
+          "user_id": userId.toString(),
+          "latitude": latitude.toString(),
+          "longitude": longitude.toString(),
+        },
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
 }

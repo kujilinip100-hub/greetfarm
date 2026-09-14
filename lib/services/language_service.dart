@@ -232,6 +232,12 @@ class LanguageService {
     "proceed_checkout": {"en": "Proceed to Checkout", "ta": "செக்அவுட்டிற்குச் செல்லவும்", "si": "ගෙවීමට යන්න"},
     "added_to_cart": {"en": "Added to cart!", "ta": "கூடையில் சேர்க்கப்பட்டது!", "si": "කරත්තයට එකතු කරන ලදී!"},
     "part_of_multi_order": {"en": "Part of a {count}-item order", "ta": "{count} பொருட்கள் கொண்ட ஆர்டரின் ஒரு பகுதி", "si": "අයිතම {count}ක ඇණවුමක කොටසක්"},
+    "listening": {"en": "Listening...", "ta": "கேட்கிறது...", "si": "සවන් දෙමින්..."},
+    "voice_not_available": {"en": "Voice search not available on this device", "ta": "இந்த சாதனத்தில் குரல் தேடல் இல்லை", "si": "මෙම උපකරණයේ හඬ සෙවීම ලබා ගත නොහැක"},
+    "update_farm_location": {"en": "Update My Farm Location", "ta": "என் பண்ணை இருப்பிடத்தைப் புதுப்பிக்கவும்", "si": "මගේ ගොවිපල ස්ථානය යාවත්කාලීන කරන්න"},
+    "location_updated": {"en": "Farm location updated!", "ta": "பண்ணை இருப்பிடம் புதுப்பிக்கப்பட்டது!", "si": "ගොවිපල ස්ථානය යාවත්කාලීන කරන ලදී!"},
+    "getting_location": {"en": "Getting your location...", "ta": "உங்கள் இருப்பிடம் பெறப்படுகிறது...", "si": "ඔබේ ස්ථානය ලබා ගනිමින්..."},
+    "location_error": {"en": "Could not get location. Please enable location access.", "ta": "இருப்பிடத்தைப் பெற முடியவில்லை.", "si": "ස්ථානය ලබා ගත නොහැක."},
   };
 
   static final Map<String, Map<String, String>> _collectionPoints = {
