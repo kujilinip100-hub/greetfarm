@@ -99,8 +99,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
       return;
     }
 
+        // Current app language-ku thakka correct voice recognition locale-a select pannurom
+    String localeId = "en_US";
+    if (LanguageService.currentLang == "ta") localeId = "ta_IN";
+    if (LanguageService.currentLang == "si") localeId = "si_LK";
+
     setState(() => _isListening = true);
     await _speech.listen(
+      localeId: localeId,
       onResult: (result) {
         setState(() {
           searchController.text = result.recognizedWords;
@@ -125,16 +131,37 @@ class _ProductListScreenState extends State<ProductListScreen> {
     setState(() => isLoading = false);
   }
 
-  void _applyFilters() {
+    void _applyFilters() {
     filteredProducts = products.where((product) {
-      final matchesSearch =
-          product.productName.toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesSearch = _matchesSearchQuery(product, searchQuery);
 
       final matchesDistance =
           selectedMaxDistance == null || _getDisplayDistance(product) <= selectedMaxDistance!;
 
       return matchesSearch && matchesDistance;
     }).toList();
+  }
+
+  // Product-oda English name, Tamil name, Sinhala name -- moondrum vachi check pannurom
+  // (customer edhu language-la pesinalum, correct-ah match aagum)
+  bool _matchesSearchQuery(ProductModel product, String query) {
+    if (query.isEmpty) return true;
+    final q = query.toLowerCase().trim();
+
+    if (product.productName.toLowerCase().contains(q)) return true;
+
+    final match = allProductImages.where(
+      (img) => img.file.toLowerCase() == product.image.toLowerCase().trim(),
+    ).toList();
+
+    if (match.isNotEmpty) {
+      final img = match.first;
+      if (img.label.toLowerCase().contains(q)) return true;
+      if (img.labelTa.toLowerCase().contains(q)) return true;
+      if (img.labelSi.toLowerCase().contains(q)) return true;
+    }
+
+    return false;
   }
 
   @override
